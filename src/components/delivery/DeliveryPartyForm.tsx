@@ -44,7 +44,17 @@ const DeliveryPartyForm: React.FC<DeliveryPartyFormProps> = ({ who, data, onUpda
         </div>
         <div className="space-y-1.5">
           <Label>CIN *</Label>
-          <Input value={cin} onChange={e => onUpdate({ [`${prefix}_cin`]: e.target.value })} onBlur={onSave} disabled={readOnly} placeholder="Numéro CIN" />
+          <Input
+            value={cin}
+            onChange={e => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 12);
+              onUpdate({ [`${prefix}_cin`]: val });
+            }}
+            onBlur={onSave}
+            disabled={readOnly}
+            placeholder="Numéro CIN"
+            maxLength={12}
+          />
         </div>
         <div className="space-y-1.5">
           <Label>Adresse</Label>
@@ -52,7 +62,18 @@ const DeliveryPartyForm: React.FC<DeliveryPartyFormProps> = ({ who, data, onUpda
         </div>
         <div className="space-y-1.5">
           <Label>Téléphone</Label>
-          <Input type="tel" value={telephone} onChange={e => onUpdate({ [`${prefix}_telephone`]: e.target.value })} onBlur={onSave} disabled={readOnly} placeholder="034 XX XXX XX" />
+          <Input
+            type="tel"
+            value={telephone}
+            onChange={e => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+              onUpdate({ [`${prefix}_telephone`]: val });
+            }}
+            onBlur={onSave}
+            disabled={readOnly}
+            placeholder="034 XX XXX XX"
+            maxLength={10}
+          />
         </div>
       </div>
 

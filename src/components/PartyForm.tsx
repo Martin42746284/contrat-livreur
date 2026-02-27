@@ -37,7 +37,17 @@ const PartyForm: React.FC<PartyFormProps> = ({ type, data, onChange, onSave, onV
         </div>
         <div className="space-y-1.5">
           <Label>CIN *</Label>
-          <Input value={data.cin} onChange={e => onChange({ cin: e.target.value })} onBlur={onSave} disabled={readOnly} placeholder="Numéro CIN" />
+          <Input
+            value={data.cin}
+            onChange={e => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 12);
+              onChange({ cin: val });
+            }}
+            onBlur={onSave}
+            disabled={readOnly}
+            placeholder="Numéro CIN"
+            maxLength={12}
+          />
         </div>
         <div className="space-y-1.5">
           <Label>Adresse</Label>
@@ -45,7 +55,18 @@ const PartyForm: React.FC<PartyFormProps> = ({ type, data, onChange, onSave, onV
         </div>
         <div className="space-y-1.5">
           <Label>Téléphone</Label>
-          <Input type="tel" value={data.telephone} onChange={e => onChange({ telephone: e.target.value })} onBlur={onSave} disabled={readOnly} placeholder="034 XX XXX XX" />
+          <Input
+            type="tel"
+            value={data.telephone}
+            onChange={e => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+              onChange({ telephone: val });
+            }}
+            onBlur={onSave}
+            disabled={readOnly}
+            placeholder="034 XX XXX XX"
+            maxLength={10}
+          />
         </div>
         {!isFournisseuse && (
           <div className="space-y-1.5 md:col-span-2">
