@@ -79,9 +79,17 @@ const DeliveryContractPage: React.FC = () => {
     : false;
 
   const handleValidateWithCheck = async () => {
-    if (!canValidate) return;
+    if (contract?.status === 'valide' || contract?.status === 'resilie') return;
+    if (!contract?.validation_partie || !contract?.validation_livreur) {
+      toast.error('Vérification croisée requise', {
+        description: 'Les deux parties doivent cocher la case de confirmation avant de valider.'
+      });
+      return;
+    }
     if (!allFieldsComplete || !allCINValid) {
-      toast.error('Veuillez remplir tous les champs et vérifier les CIN des deux parties avant de valider.');
+      toast.error('Contrat incomplet', {
+        description: 'Veuillez remplir tous les champs et vérifier les CIN des deux parties avant de valider.'
+      });
       return;
     }
     await validateContract();
@@ -358,7 +366,7 @@ const DeliveryContractPage: React.FC = () => {
               <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-border bg-card hover:border-accent/50 transition-colors">
                 <Checkbox
                   checked={contract.validation_partie}
-                  onCheckedChange={v => updateField({ validation_partie: !!v })}
+                  onCheckedChange={v => updateField({ validation_partie: !!v }, true)}
                   disabled={!isMyInfoComplete || !isBaseInfoComplete}
                 />
                 <div>
@@ -372,7 +380,7 @@ const DeliveryContractPage: React.FC = () => {
               <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-border bg-card hover:border-accent/50 transition-colors">
                 <Checkbox
                   checked={contract.validation_livreur}
-                  onCheckedChange={v => updateField({ validation_livreur: !!v })}
+                  onCheckedChange={v => updateField({ validation_livreur: !!v }, true)}
                   disabled={!isMyInfoComplete || !isBaseInfoComplete}
                 />
                 <div>
@@ -440,7 +448,6 @@ const DeliveryContractPage: React.FC = () => {
             {contract.status === 'en_attente' && (
               <Button
                 onClick={handleValidateWithCheck}
-                disabled={!canValidate}
                 className="gradient-navy text-primary-foreground hover:opacity-90 disabled:opacity-50"
               >
                 <CheckCircle2 size={16} className="mr-1.5" /> Valider

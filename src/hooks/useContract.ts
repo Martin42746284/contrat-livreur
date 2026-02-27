@@ -63,12 +63,36 @@ export function useContract(contractId: string | null) {
     }
   }, [dbId, contract, saveToDb]);
 
-  const updateContract = useCallback((partial: Partial<ContractData>) => {
-    setContract(prev => {
-      if (prev.status === 'valide') return prev;
-      return { ...prev, ...partial };
-    });
-  }, []);
+  const updateContract = useCallback(async (partial: Partial<ContractData>, shouldSave = false) => {
+    if (shouldSave && dbId) {
+      setSaving(true);
+      const { data: latest, error } = await supabase
+        .from('contracts')
+        .select('data')
+        .eq('id', dbId)
+        .single();
+
+      if (!error && latest) {
+        const currentData = (latest.data as unknown as ContractData);
+        const next = { ...currentData, ...partial };
+        await supabase.from('contracts').update({ data: next as any }).eq('id', dbId);
+        setContract(next);
+      } else {
+        // Fallback to local merge if fetch fails
+        setContract(prev => {
+          const next = { ...prev, ...partial };
+          saveToDb(next, dbId);
+          return next;
+        });
+      }
+      setSaving(false);
+    } else {
+      setContract(prev => {
+        if (prev.status === 'valide') return prev;
+        return { ...prev, ...partial };
+      });
+    }
+  }, [dbId, saveToDb]);
 
   const updateParty = useCallback((party: 'fournisseuse' | 'distributrice', partial: Partial<PartyInfo> | Partial<DistributorInfo>) => {
     setContract(prev => {

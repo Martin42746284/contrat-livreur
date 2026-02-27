@@ -60,12 +60,18 @@ export function useDeliveryContract(contractId: string | null) {
     }
   }, [contract, saveToDb]);
 
-  const updateField = useCallback((partial: Partial<DeliveryContractData>) => {
+  const updateField = useCallback(async (partial: Partial<DeliveryContractData>, shouldSave = false) => {
     setContract(prev => {
       if (!prev || prev.status === 'valide' || prev.status === 'resilie') return prev;
       return { ...prev, ...partial };
     });
-  }, []);
+
+    if (shouldSave && contractId) {
+      setSaving(true);
+      await supabase.from('delivery_contracts').update(partial).eq('id', contractId);
+      setSaving(false);
+    }
+  }, [contractId]);
 
   const addAuditLog = useCallback(async (contractId: string, action: string, details?: string) => {
     await supabase.from('delivery_audit_log').insert({
