@@ -74,10 +74,18 @@ const DeliveryContractPage: React.FC = () => {
     : false;
 
   const canValidate = contract
-    ? allFieldsComplete && allCINValid &&
-      contract.validation_partie && contract.validation_livreur &&
+    ? contract.validation_partie && contract.validation_livreur &&
       contract.status === 'en_attente'
     : false;
+
+  const handleValidateWithCheck = async () => {
+    if (!canValidate) return;
+    if (!allFieldsComplete || !allCINValid) {
+      toast.error('Veuillez remplir tous les champs et vérifier les CIN des deux parties avant de valider.');
+      return;
+    }
+    await validateContract();
+  };
 
   const isReadOnly = contract?.status === 'valide' || contract?.status === 'resilie';
   const isCrossCheckChecked = role === 'partie' ? contract?.validation_partie : contract?.validation_livreur;
@@ -431,7 +439,7 @@ const DeliveryContractPage: React.FC = () => {
             )}
             {contract.status === 'en_attente' && (
               <Button
-                onClick={validateContract}
+                onClick={handleValidateWithCheck}
                 disabled={!canValidate}
                 className="gradient-navy text-primary-foreground hover:opacity-90 disabled:opacity-50"
               >
@@ -440,9 +448,9 @@ const DeliveryContractPage: React.FC = () => {
             )}
             <Button
               onClick={() => generateDeliveryContractPDF(contract)}
-              disabled={contract.status !== 'valide'}
+              disabled={contract.status !== 'valide' && !(contract.validation_partie && contract.validation_livreur)}
               variant="outline"
-              className={contract.status === 'valide' ? 'border-accent text-accent-foreground hover:bg-accent/10' : ''}
+              className={(contract.status === 'valide' || (contract.validation_partie && contract.validation_livreur)) ? 'border-accent text-accent-foreground hover:bg-accent/10' : ''}
             >
               <Download size={16} className="mr-1.5" /> PDF
             </Button>

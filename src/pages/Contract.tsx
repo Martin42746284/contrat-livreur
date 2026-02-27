@@ -68,14 +68,16 @@ const ContractPage: React.FC = () => {
     (contract.paiement.mvola || contract.paiement.orangeMoney || contract.paiement.airtelMoney);
 
   const canValidate =
-    allFieldsComplete &&
-    allCINValid &&
     contract.validationFournisseuse &&
     contract.validationDistributrice &&
     contract.status !== 'valide';
 
   const handleValidate = () => {
     if (!canValidate) return;
+    if (!allFieldsComplete || !allCINValid) {
+      toast.error('Veuillez remplir tous les champs et vérifier les CIN des deux parties avant de valider.');
+      return;
+    }
     validateContract();
   };
 
@@ -353,9 +355,9 @@ const ContractPage: React.FC = () => {
             )}
             <Button
               onClick={handleDownload}
-              disabled={contract.status !== 'valide'}
+              disabled={contract.status !== 'valide' && !(contract.validationFournisseuse && contract.validationDistributrice)}
               variant="outline"
-              className={contract.status === 'valide' ? 'border-accent text-accent-foreground hover:bg-accent/10' : ''}
+              className={(contract.status === 'valide' || (contract.validationFournisseuse && contract.validationDistributrice)) ? 'border-accent text-accent-foreground hover:bg-accent/10' : ''}
             >
               <Download size={16} className="mr-1.5" />
               Télécharger PDF
