@@ -98,6 +98,13 @@ const ContractPage: React.FC = () => {
   const displayStatus = computeStatus();
   const isCrossCheckChecked = role === 'fournisseuse' ? contract.validationFournisseuse : contract.validationDistributrice;
 
+  const isMyInfoComplete = role === 'fournisseuse'
+    ? isPartyComplete(contract.fournisseuse) && isCINValid(contract.fournisseuse.cinPhotos)
+    : isPartyComplete(contract.distributrice, true) && isCINValid(contract.distributrice.cinPhotos);
+
+  // Check if initial fields usually filled by creator are complete
+  const isBaseInfoComplete = !!(contract.lieu && contract.date);
+
   // Loading state
   if (loading) {
     return (
@@ -267,7 +274,7 @@ const ContractPage: React.FC = () => {
                 <Checkbox
                   checked={contract.validationFournisseuse}
                   onCheckedChange={v => updateContract({ validationFournisseuse: !!v })}
-                  disabled={!allFieldsComplete}
+                  disabled={!isMyInfoComplete || !isBaseInfoComplete}
                 />
                 <div>
                   <p className="text-sm font-medium">Je confirme que les informations de la Distributrice sont exactes</p>
@@ -281,7 +288,7 @@ const ContractPage: React.FC = () => {
                 <Checkbox
                   checked={contract.validationDistributrice}
                   onCheckedChange={v => updateContract({ validationDistributrice: !!v })}
-                  disabled={!allFieldsComplete}
+                  disabled={!isMyInfoComplete || !isBaseInfoComplete}
                 />
                 <div>
                   <p className="text-sm font-medium">Je confirme que les informations de la Fournisseuse sont exactes</p>

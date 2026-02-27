@@ -82,6 +82,12 @@ const DeliveryContractPage: React.FC = () => {
   const isReadOnly = contract?.status === 'valide' || contract?.status === 'resilie';
   const isCrossCheckChecked = role === 'partie' ? contract?.validation_partie : contract?.validation_livreur;
 
+  const isMyInfoComplete = role === 'partie'
+    ? !!(contract?.partie_nom_complet && contract?.partie_cin && isCINValid(contract?.partie_cin_recto_status) && isCINValid(contract?.partie_cin_verso_status))
+    : !!(contract?.livreur_nom_complet && contract?.livreur_cin && isCINValid(contract?.livreur_cin_recto_status) && isCINValid(contract?.livreur_cin_verso_status));
+
+  const isBaseInfoComplete = !!(contract?.lieu && contract?.date_contrat);
+
   const handleShareLink = () => {
     if (!contract) return;
     const otherRole = role === 'partie' ? 'livreur' : 'partie';
@@ -345,7 +351,7 @@ const DeliveryContractPage: React.FC = () => {
                 <Checkbox
                   checked={contract.validation_partie}
                   onCheckedChange={v => updateField({ validation_partie: !!v })}
-                  disabled={!allFieldsComplete}
+                  disabled={!isMyInfoComplete || !isBaseInfoComplete}
                 />
                 <div>
                   <p className="text-sm font-medium">Je confirme que les informations du Livreur sont exactes</p>
@@ -359,7 +365,7 @@ const DeliveryContractPage: React.FC = () => {
                 <Checkbox
                   checked={contract.validation_livreur}
                   onCheckedChange={v => updateField({ validation_livreur: !!v })}
-                  disabled={!allFieldsComplete}
+                  disabled={!isMyInfoComplete || !isBaseInfoComplete}
                 />
                 <div>
                   <p className="text-sm font-medium">Je confirme que les informations du {partieLabel} sont exactes</p>
